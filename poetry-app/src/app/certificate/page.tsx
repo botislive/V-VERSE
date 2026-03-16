@@ -4,15 +4,16 @@ import { useRef, useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { participantAtom } from '@/lib/store';
-import { ArrowLeft, Share2, Download, Award, Home, Trophy, User, Check, Link } from 'lucide-react';
+import { ArrowLeft, Share2, Download, Award, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toPng } from 'html-to-image';
+import { toBlob, toPng } from 'html-to-image';
 
 export default function CertificatePage() {
   const router = useRouter();
   const participant = useAtomValue(participantAtom);
   const certRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleShare = useCallback(async () => {
     const shareData = {
@@ -35,71 +36,82 @@ export default function CertificatePage() {
   }, []);
 
   const handleDownload = useCallback(async () => {
-    if (certRef.current === null) return;
-    
+    if (certRef.current === null || isDownloading) return;
+
+    setIsDownloading(true);
+
+    const filename = `V-VERSE_1.0_Certificate_${participant?.username?.trim().replace(/\s+/g, '_') || 'Participant'}.png`;
+    const node = certRef.current;
+
     try {
-      // 1. Pre-flight check: Ensure fonts are loaded before starting
-      if (document.fonts) {
-        await document.fonts.ready;
-      }
+      // Wait for custom fonts and one paint cycle to avoid partial renders.
+      if (document.fonts) await document.fonts.ready;
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
 
-      // 2. High-res capture with Multi-stage rendering for absolute stability
-      const capture = async (retryCount = 0): Promise<string> => {
-        try {
-          const options = {
-            cacheBust: true,
-            pixelRatio: 4, // 4x for Ultra-HD print quality
-            backgroundColor: '#111111',
-            skipFonts: false,
-            style: {
-              transform: 'scale(1)',
-              transformOrigin: 'top left',
-              display: 'flex',
-              visibility: 'visible',
-            }
-          };
-
-          // Warm up pass (Safari/WebKit workaround)
-          await toPng(certRef.current!, options);
-          await new Promise(r => setTimeout(r, 200));
-          
-          // Final Capture pass
-          const result = await toPng(certRef.current!, options);
-          
-          // Blank image detection (very short data URL means a failed render)
-          if (result.length < 2000 && retryCount < 2) {
-            return capture(retryCount + 1);
-          }
-          return result;
-        } catch (e) {
-          if (retryCount < 2) return capture(retryCount + 1);
-          throw e;
-        }
+      const triggerBlobDownload = (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          if (document.body.contains(link)) document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, 300);
       };
 
-      const dataUrl = await capture();
-      
-      // 3. Robust Trigger Mechanism
-      const link = document.createElement('a');
-      link.style.display = 'none';
-      link.href = dataUrl;
-      link.download = `V-VERSE_1.0_Certificate_${participant?.username?.replace(/\s+/g, '_') || 'Participant'}.png`;
-      
-      document.body.appendChild(link);
-      link.click();
-      
-      // Cleanup with delay to ensure download starts
-      setTimeout(() => {
-        if (document.body.contains(link)) {
-          document.body.removeChild(link);
+      // Blob-first strategy avoids huge base64 strings and reduces crash risk.
+      const blobStrategies = [2, 1.5, 1];
+      let downloaded = false;
+
+      for (const pixelRatio of blobStrategies) {
+        try {
+          const blob = await toBlob(node, {
+            cacheBust: true,
+            pixelRatio,
+            backgroundColor: '#111111',
+            skipFonts: false,
+          });
+
+          if (blob && blob.size > 5_000) {
+            triggerBlobDownload(blob);
+            downloaded = true;
+            break;
+          }
+        } catch (strategyError) {
+          console.warn(`Certificate blob strategy failed at pixelRatio ${pixelRatio}:`, strategyError);
         }
-      }, 1000);
+      }
+
+      // Final fallback for environments where blob conversion fails.
+      if (!downloaded) {
+        const dataUrl = await toPng(node, {
+          cacheBust: true,
+          pixelRatio: 1,
+          backgroundColor: '#111111',
+          skipFonts: false,
+        });
+
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.href = dataUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          if (document.body.contains(link)) document.body.removeChild(link);
+        }, 300);
+      }
 
     } catch (err) {
       console.error('Final failure in certificate generation:', err);
       alert('We encountered an issue generating your high-res certificate. Please try again or take a manual screenshot of the preview.');
+    } finally {
+      setIsDownloading(false);
     }
-  }, [participant]);
+  }, [isDownloading, participant]);
 
   return (
     <div className="bg-white dark:bg-black font-sans text-slate-900 dark:text-white min-h-screen flex flex-col pb-24 relative z-10">
@@ -208,10 +220,11 @@ export default function CertificatePage() {
           <div className="pt-8 flex justify-center pb-20">
             <button 
               onClick={handleDownload}
-              className="inline-flex items-center justify-center gap-3 bg-[#0d6cf2] text-black px-10 py-5 font-black uppercase tracking-widest text-xs transition-all hover:bg-white hover:text-black shadow-[0_10px_30px_rgba(13,108,242,0.3)] hover:-translate-y-1"
+              disabled={isDownloading}
+              className="inline-flex items-center justify-center gap-3 bg-[#0d6cf2] text-black px-10 py-5 font-black uppercase tracking-widest text-xs transition-all hover:bg-white hover:text-black shadow-[0_10px_30px_rgba(13,108,242,0.3)] hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Download className="w-5 h-5" />
-              Download Digital Asset
+              {isDownloading ? 'Generating...' : 'Download Digital Asset'}
             </button>
           </div>
         </motion.div>
