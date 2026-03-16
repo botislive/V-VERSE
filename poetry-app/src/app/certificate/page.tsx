@@ -1,17 +1,15 @@
 'use client';
 
-import { useRef, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { participantAtom } from '@/lib/store';
 import { ArrowLeft, Share2, Download, Award, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toBlob, toPng } from 'html-to-image';
 
 export default function CertificatePage() {
   const router = useRouter();
   const participant = useAtomValue(participantAtom);
-  const certRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -36,18 +34,13 @@ export default function CertificatePage() {
   }, []);
 
   const handleDownload = useCallback(async () => {
-    if (certRef.current === null || isDownloading) return;
+    if (isDownloading) return;
 
     setIsDownloading(true);
 
     const filename = `V-VERSE_1.0_Certificate_${participant?.username?.trim().replace(/\s+/g, '_') || 'Participant'}.png`;
-    const node = certRef.current;
 
     try {
-      // Wait for custom fonts and one paint cycle to avoid partial renders.
-      if (document.fonts) await document.fonts.ready;
-      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
-
       const triggerBlobDownload = (blob: Blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -59,55 +52,169 @@ export default function CertificatePage() {
         setTimeout(() => {
           if (document.body.contains(link)) document.body.removeChild(link);
           URL.revokeObjectURL(url);
-        }, 300);
+        }, 400);
       };
 
-      // Blob-first strategy avoids huge base64 strings and reduces crash risk.
-      const blobStrategies = [2, 1.5, 1];
-      let downloaded = false;
+      const wrapCenteredText = (
+        ctx: CanvasRenderingContext2D,
+        text: string,
+        x: number,
+        startY: number,
+        maxWidth: number,
+        lineHeight: number,
+      ) => {
+        const words = text.split(' ');
+        const lines: string[] = [];
+        let currentLine = '';
 
-      for (const pixelRatio of blobStrategies) {
-        try {
-          const blob = await toBlob(node, {
-            cacheBust: true,
-            pixelRatio,
-            backgroundColor: '#111111',
-            skipFonts: false,
-          });
-
-          if (blob && blob.size > 5_000) {
-            triggerBlobDownload(blob);
-            downloaded = true;
-            break;
+        for (const word of words) {
+          const testLine = currentLine ? `${currentLine} ${word}` : word;
+          const testWidth = ctx.measureText(testLine).width;
+          if (testWidth <= maxWidth) {
+            currentLine = testLine;
+          } else {
+            if (currentLine) lines.push(currentLine);
+            currentLine = word;
           }
-        } catch (strategyError) {
-          console.warn(`Certificate blob strategy failed at pixelRatio ${pixelRatio}:`, strategyError);
         }
-      }
 
-      // Final fallback for environments where blob conversion fails.
-      if (!downloaded) {
-        const dataUrl = await toPng(node, {
-          cacheBust: true,
-          pixelRatio: 1,
-          backgroundColor: '#111111',
-          skipFonts: false,
+        if (currentLine) lines.push(currentLine);
+
+        lines.forEach((line, i) => {
+          ctx.fillText(line, x, startY + i * lineHeight);
         });
+      };
 
-        const link = document.createElement('a');
-        link.style.display = 'none';
-        link.href = dataUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-          if (document.body.contains(link)) document.body.removeChild(link);
-        }, 300);
+      // Ensure text metrics use final fonts where available.
+      if (document.fonts) await document.fonts.ready;
+
+      // Dedicated canvas pipeline (no DOM screenshot libraries).
+      const width = 1800;
+      const height = 1300;
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Unable to initialize certificate canvas context');
       }
+
+      // Background
+      const bg = ctx.createLinearGradient(0, 0, 0, height);
+      bg.addColorStop(0, '#1a1a1a');
+      bg.addColorStop(1, '#050505');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, width, height);
+
+      // Subtle blue glow
+      const glow = ctx.createRadialGradient(width / 2, 120, 50, width / 2, 120, 700);
+      glow.addColorStop(0, 'rgba(13,108,242,0.35)');
+      glow.addColorStop(1, 'rgba(13,108,242,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, width, height);
+
+      // Borders
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(24, 24, width - 48, height - 48);
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(58, 58, width - 116, height - 116);
+
+      // Header accent
+      ctx.fillStyle = '#0d6cf2';
+      ctx.fillRect(width / 2 - 34, 116, 68, 68);
+      ctx.fillStyle = '#020202';
+      ctx.font = '700 42px "Space Grotesk", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('A', width / 2, 162);
+
+      // Title
+      ctx.fillStyle = '#0d6cf2';
+      ctx.font = '700 28px "Space Grotesk", sans-serif';
+      ctx.fillText('OFFICIAL CERTIFICATE OF EXCELLENCE', width / 2, 270);
+
+      ctx.strokeStyle = 'rgba(13,108,242,0.55)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(width / 2 - 120, 296);
+      ctx.lineTo(width / 2 + 120, 296);
+      ctx.stroke();
+
+      // Body
+      ctx.fillStyle = 'rgba(255,255,255,0.62)';
+      ctx.font = '500 24px "Space Grotesk", sans-serif';
+      ctx.fillText('THIS AWARD IS PRESENTED TO', width / 2, 390);
+
+      const username = (participant?.username || 'JOHN DOE').toUpperCase();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 86px "Space Grotesk", sans-serif';
+      ctx.fillText(username, width / 2, 520);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = '400 30px "Space Grotesk", sans-serif';
+      wrapCenteredText(
+        ctx,
+        'For exceptional literary contribution and artistic vision displayed during the 2024 VIGNAN POETRY DAY COMPETITION',
+        width / 2,
+        620,
+        1250,
+        42,
+      );
+
+      // Footer metadata
+      const issueDate = new Date()
+        .toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
+        .toUpperCase();
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(210, 1030);
+      ctx.lineTo(520, 1030);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(width - 520, 1030);
+      ctx.lineTo(width - 210, 1030);
+      ctx.stroke();
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.font = '600 18px "Space Grotesk", sans-serif';
+      ctx.fillText('ISSUE DATE', 210, 1070);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 28px "Space Grotesk", sans-serif';
+      ctx.fillText(issueDate, 210, 1112);
+
+      ctx.textAlign = 'right';
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.font = '600 18px "Space Grotesk", sans-serif';
+      ctx.fillText('AUTHORIZED BY', width - 210, 1070);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 28px "Space Grotesk", sans-serif';
+      ctx.fillText('S. VIGNAN', width - 210, 1112);
+
+      // Center footer seal
+      ctx.save();
+      ctx.translate(width / 2, 1060);
+      ctx.rotate(Math.PI / 4);
+      ctx.strokeStyle = 'rgba(13,108,242,0.55)';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(-42, -42, 84, 84);
+      ctx.restore();
+
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+      if (!blob || blob.size < 5000) {
+        throw new Error('Canvas export produced an invalid blob');
+      }
+
+      triggerBlobDownload(blob);
 
     } catch (err) {
       console.error('Final failure in certificate generation:', err);
-      alert('We encountered an issue generating your high-res certificate. Please try again or take a manual screenshot of the preview.');
+      alert('Unable to generate the certificate image right now. Please try again in a moment.');
     } finally {
       setIsDownloading(false);
     }
@@ -141,13 +248,11 @@ export default function CertificatePage() {
         >
           {/* Certificate Container */}
           <div 
-             ref={certRef}
              className="relative flex flex-col items-stretch justify-start bg-[#111111] border border-white/10 p-[1px] shadow-[0_0_50px_rgba(13,108,242,0.1)] w-full max-w-lg mx-auto"
              style={{ 
                backgroundColor: '#111111',
                color: 'white',
-               transform: 'translateZ(0)', // Force GPU layer
-               backfaceVisibility: 'hidden'
+                backfaceVisibility: 'visible'
              }}
           >
             <div className="border border-white/5 p-12 flex flex-col items-center text-center space-y-10 bg-gradient-to-b from-[#1a1a1a] to-black relative overflow-hidden">
