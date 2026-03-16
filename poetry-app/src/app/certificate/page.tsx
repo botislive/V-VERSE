@@ -38,22 +38,36 @@ export default function CertificatePage() {
     if (certRef.current === null) return;
     
     try {
-      // Fix for WebKit/Safari blank image bug: Pre-render pass
-      await toPng(certRef.current, { cacheBust: true });
+      // Step 1: Wait for a short moment to ensure component is fully painted
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Actual high-res render pass
-      const dataUrl = await toPng(certRef.current, { 
+      // Step 2: Ensure all images/styles are captured properly
+      // Note: We use filter to exclude buttons or non-essential items if needed
+      const options = {
         cacheBust: true,
-        pixelRatio: 2, // Ensure crisp text
-        backgroundColor: '#111111', // Prevent transparent rendering bugs
-      });
+        pixelRatio: 2,
+        backgroundColor: '#111111',
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left'
+        }
+      };
+
+      // Preliminary pass (Safari/WebKit workaround)
+      await toPng(certRef.current, options);
+      
+      // Final pass
+      const dataUrl = await toPng(certRef.current, options);
       
       const link = document.createElement('a');
       link.download = `V-VERSE_1.0_${participant?.username || 'Certificate'}.png`;
       link.href = dataUrl;
+      document.body.appendChild(link); // Required for some browsers
       link.click();
+      document.body.removeChild(link);
     } catch (err) {
       console.error('Failed to generate image', err);
+      alert('Failed to download certificate. Please try again or take a screenshot.');
     }
   }, [participant]);
 
