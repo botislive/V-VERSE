@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Mic, Play, Square, RotateCcw } from 'lucide-react';
+import { Mic, Play, Square, RotateCcw, Pause } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function AudioRecorder({ 
@@ -12,8 +12,10 @@ export default function AudioRecorder({
   const [isRecording, setIsRecording] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -39,6 +41,12 @@ export default function AudioRecorder({
         setAudioUrl(url);
         onRecordingComplete(audioBlob);
         stream.getTracks().forEach(track => track.stop());
+        
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        audioRef.current = null;
+        setIsPlaying(false);
       };
 
       mediaRecorder.start();
@@ -70,9 +78,31 @@ export default function AudioRecorder({
   };
 
   const resetRecording = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsPlaying(false);
     setAudioUrl(null);
     setTimeLeft(60);
     onRecordingComplete(null);
+  };
+
+  const togglePlayPause = () => {
+    if (!audioUrl) return;
+    
+    if (!audioRef.current) {
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.onended = () => setIsPlaying(false);
+    }
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -136,14 +166,9 @@ export default function AudioRecorder({
           <button 
              className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${audioUrl ? 'text-white border-white/30 hover:bg-white/10' : 'text-slate-600 border-white/5'}`}
              disabled={!audioUrl || isRecording}
-             onClick={() => {
-                if (audioUrl) {
-                  const audio = new Audio(audioUrl);
-                  audio.play();
-                }
-             }}
+             onClick={togglePlayPause}
           >
-            <Play className="w-5 h-5" />
+            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
           </button>
         </div>
         
