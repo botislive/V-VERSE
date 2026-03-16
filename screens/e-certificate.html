@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#0d6cf2',
+                        'background-light': '#ffffff',
+                        'background-dark': '#000000',
+                        'surface-dark': '#111111',
+                    },
+                    fontFamily: {
+                        'display': ['Inter', 'sans-serif'],
+                        'sans': ['Inter', 'sans-serif']
+                    },
+                    borderRadius: {
+                        'none': '0',
+                        'sm': '0',
+                        'DEFAULT': '0',
+                        'md': '0',
+                        'lg': '0',
+                        'xl': '0',
+                        'full': '9999px',
+                    },
+                },
+            },
+        }</script>
+<title>E-Certificate Preview</title>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-white min-h-screen flex flex-col">
+<header class="flex items-center bg-background-light dark:bg-background-dark p-6 pb-4 justify-between border-b border-white/10">
+<div class="text-primary flex size-10 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-sm uppercase tracking-[0.2em] font-medium flex-1 text-center">Certificate Preview</h2>
+<div class="flex w-10 items-center justify-end">
+<button class="flex cursor-pointer items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">share</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto pb-24">
+<div class="p-6 @container">
+<div class="relative flex flex-col items-stretch justify-start bg-surface-dark border border-white/10 p-[1px] shadow-[0_0_50px_rgba(13,108,242,0.1)]">
+<div class="border border-white/5 p-12 flex flex-col items-center text-center space-y-10 bg-gradient-to-b from-[#1a1a1a] to-black relative overflow-hidden">
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCqnF5eUgV8Zaz92AjnVSqHQtbqQr7uge_Q7fS1dl3ZkrmgdD-VNzByZWyvPu-7sXCbX0tq5uQnvHCN4e4mr5qeG-Gkjsjvt-0AaN2X5XheBPFft8km1dV0ulFXw2KmToMUftwwiL20O52BKd7eBWNe1IvgbhgzHwyN8RW0--O8a0l6gPa7WFFYe32YiAXzVXoZ6Ph2Eh8VtMVXiSd1SdvhtRIIdQW0oPkZjx6CdSgu4SSpdB4d7vcYvhpTr3ArrIfohcMb9SJKfLTt');"></div>
+<div class="w-16 h-16 relative z-10">
+<div class="w-full h-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-black text-4xl">workspace_premium</span>
+</div>
+</div>
+<div class="space-y-3 relative z-10">
+<h3 class="text-primary text-[10px] uppercase tracking-[0.5em] font-bold">Official Certificate of Excellence</h3>
+<div class="h-[1px] w-20 bg-primary/40 mx-auto"></div>
+</div>
+<div class="space-y-6 relative z-10">
+<p class="text-white/50 text-sm uppercase tracking-widest">This award is presented to</p>
+<h1 class="text-5xl md:text-6xl font-extrabold text-white tracking-tighter">ALEX RIVERS</h1>
+<p class="text-white/60 text-sm max-w-md mx-auto leading-relaxed font-light">
+                            For exceptional literary contribution and artistic vision displayed during the <br/>
+<span class="text-white font-medium">2024 VIGNAN POETRY DAY COMPETITION</span>
+</p>
+</div>
+<div class="pt-12 flex justify-between items-end w-full max-w-lg px-4 relative z-10">
+<div class="text-left border-t border-white/10 pt-4 w-32">
+<p class="text-[9px] uppercase tracking-[0.2em] text-white/40">Issue Date</p>
+<p class="text-xs font-bold text-white mt-1">OCT 24, 2024</p>
+</div>
+<div class="relative">
+<div class="h-14 w-14 border border-primary/30 flex items-center justify-center rotate-45">
+<span class="material-symbols-outlined text-2xl text-primary -rotate-45">verified</span>
+</div>
+</div>
+<div class="text-right border-t border-white/10 pt-4 w-32">
+<p class="text-[9px] uppercase tracking-[0.2em] text-white/40">Authorized By</p>
+<p class="text-xs font-bold text-white mt-1">S. VIGNAN</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="px-6 text-center space-y-4"><h3 class="text-white tracking-tighter text-4xl font-black uppercase">Alex Rivers</h3>
+<p class="text-white/50 text-sm font-light leading-relaxed max-w-sm mx-auto uppercase tracking-wide">
+                Winner of the 2024 Vignan Poetry Day Competition. A digital distinction honoring exceptional literary vision and creative spirit.
+            </p>
+<div class="pt-8">
+<button class="inline-flex items-center justify-center gap-3 bg-primary text-black px-10 py-5 font-black uppercase tracking-widest text-xs transition-all hover:bg-white hover:text-black shadow-[0_10px_30px_rgba(13,108,242,0.3)]">
+<span class="material-symbols-outlined text-lg">download</span>
+                    Download Digital Asset
+                </button>
+</div></div>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex gap-0 border-t border-white/5 bg-black px-4 pb-8 pt-4">
+<a class="flex flex-1 flex-col items-center justify-center gap-2 text-white/30" href="#">
+<span class="material-symbols-outlined text-xl">home</span>
+<p class="text-[8px] font-bold uppercase tracking-[0.2em]">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-2 text-primary" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1">emoji_events</span>
+<p class="text-[8px] font-bold uppercase tracking-[0.2em]">Awards</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-2 text-white/30" href="#">
+<span class="material-symbols-outlined text-xl">person</span>
+<p class="text-[8px] font-bold uppercase tracking-[0.2em]">Profile</p>
+</a>
+</nav>
+</body></html>

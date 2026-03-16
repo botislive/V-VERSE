@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0d6cf2;
+  --color-background-light: #fbfbfd;
+  --color-background-dark: #000000;
+  --color-titanium-gray: #1d1d1f;
+  --color-midnight: #0a0a0a;
+  --color-surface-dark: #111111;
+}
+
+:root {
+  --background: #fbfbfd;
+  --foreground: #171717;
+}
+
+.dark {
+    --background: #000000;
+    --foreground: #ffffff;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+}
+
+.squircle {
+  border-radius: 9999px;
+}
+
+.glass-card, .glass-panel {
+  background: rgba(0, 0, 0, 0.05); /* Light mode specific */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass-card, .dark .glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-panel {
+  background: rgba(240, 240, 245, 0.7); /* Light mode specific */
+}
+
+.dark .glass-panel {
+  background: rgba(29, 29, 31, 0.7);
+}
+
+.premium-border {
+  position: relative;
+}
+
+.premium-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.waveform-bar {
+  transition: height 0.3s ease;
+  box-shadow: 0 0 8px rgba(13, 108, 242, 0.3);
+}
+
+.logo-glow {
+  box-shadow: 0 0 50px rgba(13, 108, 242, 0.2);
+}

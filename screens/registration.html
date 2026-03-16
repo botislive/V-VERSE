@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d6cf2",
+                        "background-light": "#fbfbfb",
+                        "background-dark": "#000000",
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"],
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.75rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .squircle {
+            border-radius: 9999px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .premium-border {
+            position: relative;
+        }
+        .premium-border::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+    </style>
+<style>
+        .squircle {
+            border-radius: 9999px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .premium-border {
+            position: relative;
+        }
+        .premium-border::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-white min-h-screen flex flex-col items-center justify-center p-6">
+<div class="w-full max-w-md flex flex-col items-center">
+<!-- Logo Section -->
+<div class="mb-10 relative">
+<div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150"></div>
+<div class="relative glass-card p-6 rounded-xl logo-glow">
+<img alt="Vignan College institutional emblem logo" class="h-16 w-auto object-contain" data-alt="Vignan College institutional emblem logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAl49Qh02awXc7O75l58iuM3V3d_sDchdx3Ep7obO8wxfLIrBkhzWPQeA2EDBDS6FgX9J7UztpSCBFa1TSNmiQyficL0wz1Rb66aXPFUjKC4x9n8iy-Dum1BLepwAHfZlZwluYiy6NJfM9oZs3keLjVw2lRVJMNQcq97lWka1a3xMz5st1RlK5QjRNf0LQ2mOASbSBZOzzYytOxsO66RF8baF0bWAsPyD2R1bnURzuEWq9cxG-cg4kXM-gxsYKuTE7XSycAXxN2XKY1"/>
+</div>
+</div>
+<!-- Header -->
+<div class="text-center mb-10">
+<h1 class="text-5xl md:text-6xl font-semibold tracking-tight text-white mb-3">
+                Poetry Day
+            </h1>
+<p class="text-slate-400 font-medium tracking-[0.2em] uppercase text-[10px]">Annual Literary Competition</p>
+</div>
+<!-- Form Container -->
+<div class="w-full glass-card p-10 rounded-3xl shadow-2xl premium-border border-none">
+<form action="#" class="space-y-6">
+<!-- Username Field -->
+<div class="space-y-2">
+<label class="text-sm font-medium text-slate-400 ml-1">Full Name</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 text-xl">person</span>
+<input class="w-full bg-white/[0.03] border-white/10 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-slate-600 transition-all outline-none" placeholder="Enter your username" type="text"/>
+</div>
+</div>
+<!-- Phone Field -->
+<div class="space-y-2">
+<label class="text-sm font-medium text-slate-400 ml-1">Phone Number</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 text-xl">call</span>
+<input class="w-full bg-white/[0.03] border-white/10 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-slate-600 transition-all outline-none" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+</div>
+<!-- College Selection -->
+<div class="space-y-2"><label class="text-sm font-medium text-slate-400 ml-1">Affiliation</label>
+<div class="flex flex-col space-y-3">
+<label class="relative cursor-pointer">
+<input checked="" class="peer sr-only" name="college" type="radio" value="vignan"/>
+<div class="flex items-center justify-center px-4 py-4 rounded-2xl border border-white/10 bg-white/[0.03] text-slate-400 peer-checked:border-primary/50 peer-checked:bg-primary/20 peer-checked:text-white transition-all duration-200 hover:bg-white/[0.05]">
+<span class="text-sm font-medium">Vignan College</span>
+</div>
+</label>
+<label class="relative cursor-pointer">
+<input class="peer sr-only" name="college" type="radio" value="other"/>
+<div class="flex items-center justify-center px-4 py-4 rounded-2xl border border-white/10 bg-white/[0.03] text-slate-400 peer-checked:border-primary/50 peer-checked:bg-primary/20 peer-checked:text-white transition-all duration-200 hover:bg-white/[0.05]">
+<span class="text-sm font-medium">Other College</span>
+</div>
+</label>
+</div></div>
+<!-- Submit Button -->
+<div class="pt-4">
+<button class="w-full bg-primary hover:opacity-90 text-white font-semibold text-lg py-4 rounded-full transition-all active:scale-[0.98] shadow-lg shadow-primary/20" type="submit">
+                        Register Now
+                    </button>
+</div>
+</form>
+</div>
+<!-- Footer -->
+<p class="mt-10 text-slate-500 text-xs tracking-wide opacity-60 uppercase">
+            Presented by the Department of Literature
+        </p>
+</div>
+<!-- Decorative Background Elements -->
+<div class="fixed -top-24 -left-24 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="fixed -top-24 -left-24 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+</body></html>
