@@ -38,36 +38,66 @@ export default function CertificatePage() {
     if (certRef.current === null) return;
     
     try {
-      // Step 1: Wait for a short moment to ensure component is fully painted
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Step 2: Ensure all images/styles are captured properly
-      // Note: We use filter to exclude buttons or non-essential items if needed
-      const options = {
-        cacheBust: true,
-        pixelRatio: 2,
-        backgroundColor: '#111111',
-        style: {
-          transform: 'scale(1)',
-          transformOrigin: 'top left'
+      // 1. Pre-flight check: Ensure fonts are loaded before starting
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
+
+      // 2. High-res capture with Multi-stage rendering for absolute stability
+      const capture = async (retryCount = 0): Promise<string> => {
+        try {
+          const options = {
+            cacheBust: true,
+            pixelRatio: 4, // 4x for Ultra-HD print quality
+            backgroundColor: '#111111',
+            skipFonts: false,
+            style: {
+              transform: 'scale(1)',
+              transformOrigin: 'top left',
+              display: 'flex',
+              visibility: 'visible',
+            }
+          };
+
+          // Warm up pass (Safari/WebKit workaround)
+          await toPng(certRef.current!, options);
+          await new Promise(r => setTimeout(r, 200));
+          
+          // Final Capture pass
+          const result = await toPng(certRef.current!, options);
+          
+          // Blank image detection (very short data URL means a failed render)
+          if (result.length < 2000 && retryCount < 2) {
+            return capture(retryCount + 1);
+          }
+          return result;
+        } catch (e) {
+          if (retryCount < 2) return capture(retryCount + 1);
+          throw e;
         }
       };
 
-      // Preliminary pass (Safari/WebKit workaround)
-      await toPng(certRef.current, options);
+      const dataUrl = await capture();
       
-      // Final pass
-      const dataUrl = await toPng(certRef.current, options);
-      
+      // 3. Robust Trigger Mechanism
       const link = document.createElement('a');
-      link.download = `V-VERSE_1.0_${participant?.username || 'Certificate'}.png`;
+      link.style.display = 'none';
       link.href = dataUrl;
-      document.body.appendChild(link); // Required for some browsers
+      link.download = `V-VERSE_1.0_Certificate_${participant?.username?.replace(/\s+/g, '_') || 'Participant'}.png`;
+      
+      document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      
+      // Cleanup with delay to ensure download starts
+      setTimeout(() => {
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+        }
+      }, 1000);
+
     } catch (err) {
-      console.error('Failed to generate image', err);
-      alert('Failed to download certificate. Please try again or take a screenshot.');
+      console.error('Final failure in certificate generation:', err);
+      alert('We encountered an issue generating your high-res certificate. Please try again or take a manual screenshot of the preview.');
     }
   }, [participant]);
 
@@ -101,11 +131,20 @@ export default function CertificatePage() {
           <div 
              ref={certRef}
              className="relative flex flex-col items-stretch justify-start bg-[#111111] border border-white/10 p-[1px] shadow-[0_0_50px_rgba(13,108,242,0.1)] w-full max-w-lg mx-auto"
+             style={{ 
+               backgroundColor: '#111111',
+               color: 'white',
+               transform: 'translateZ(0)', // Force GPU layer
+               backfaceVisibility: 'hidden'
+             }}
           >
             <div className="border border-white/5 p-12 flex flex-col items-center text-center space-y-10 bg-gradient-to-b from-[#1a1a1a] to-black relative overflow-hidden">
               <div 
                 className="absolute inset-0 opacity-20 pointer-events-none" 
-                style={{ backgroundImage: 'radial-gradient(circle at 50% -20%, #0d6cf2 0%, transparent 60%)' }}
+                style={{ 
+                  backgroundImage: 'radial-gradient(circle at 50% -20%, #0d6cf2 0%, transparent 60%)',
+                  backgroundColor: '#111111' 
+                }}
               />
               
               <div className="w-16 h-16 relative z-10">
